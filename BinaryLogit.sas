@@ -1,6 +1,6 @@
 proc iml;
-seed = 1;
-N = 1000;
+seed = 1234;
+N = 100;
 beta = {0.5, 0.5};
 income = randfun(N, "Normal", 0, 1);
 X = j(N, 1, 1);
@@ -28,25 +28,21 @@ end;
 */ before function starts try to see if you can get the equations right */;
 
 start LOGL(beta) global(X, Y);
-beta = beta`;
-xbeta = X*beta;
-lambdaxb = exp(xbeta)/(1 + exp(xbeta));
-temp1 = Y#log(lambdaxb);
-temp2 = (1 - Y)#log(lambdaxb);
+beta1 = beta[1];
+beta2 = beta[2];
+X1 = X[,1];
+X2 = X[,2];
+xb = beta1#X1 + beta2#X2;
+mylambdaxb = exp(xb)/(1 + exp(xb));
+temp1 = Y#log(mylambdaxb);
+temp2 = (1 - Y)#log(1 - mylambdaxb);
 ll_i = temp1 + temp2;
-LL = -sum(ll_i);
+LL = sum(ll_i);
 return(LL);
 finish LOGL;
 
 x0 = {0.5 0.5};
 opt = {1, 4};
 
-beta1 = {0.5 0.5};
-var1 = LOGL(beta1);
-
-beta2 = {0 0};
-var2 = LOGL(beta2);
-
-print var1 var2;
-
-call nlptr(xr, rc, "LOGL", x0, opt);
+print X Y;
+call nlpnra(rc, xr, "LOGL", x0, opt);
